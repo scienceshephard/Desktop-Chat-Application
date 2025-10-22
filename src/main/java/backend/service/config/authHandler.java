@@ -14,18 +14,18 @@ public class authHandler implements CallbackHandler{
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-        NameCallback nameCallback = null;
-        PasswordCallback passwordCallback = null;
-        int counter = 0;
-        while (counter < callbacks.length) {
-            if(callbacks[counter]instanceof NameCallback){
-                nameCallback = (NameCallback) callbacks[counter++];
-                System.out.println(nameCallback.getPrompt());
-                nameCallback.setName(new BufferedReader( new InputStreamReader(System.in)).readLine());
-            }else if(callbacks[counter] instanceof PasswordCallback){
-                passwordCallback = (PasswordCallback) callbacks[counter++];
-                System.out.println(passwordCallback.getPrompt());
-                passwordCallback.setPassword(new BufferedReader(new InputStreamReader(System.in)).readLine().toCharArray());
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        for(Callback cb : callbacks){
+            if(cb instanceof NameCallback){
+                NameCallback nc = (NameCallback) cb;
+                System.out.println(nc.getPrompt());
+                nc.setName(in.readLine());
+            }else if(cb instanceof PasswordCallback){
+                PasswordCallback pc = (PasswordCallback) cb;
+                System.out.println(pc.getPrompt());
+                pc.setPassword(in.readLine().toCharArray());
+            }else{
+                throw new UnsupportedCallbackException(cb, "Unrecognized Callback");
             }
         }
     }

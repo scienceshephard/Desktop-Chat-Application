@@ -16,13 +16,11 @@ public class Authorization {
         } catch (LoginException e) {
             System.out.println(e.getMessage());
         }
-        while (true) {
-            try {
-                loginContext.login();
-            } catch (LoginException e) {
-                System.out.println(e.getMessage());
-            }
-            System.exit(0);
+        try{
+            loginContext.login();
+            System.out.println("Authentication succeeded!");
+        }catch (LoginException e){
+            System.out.println("Authentication failed: " + e.getMessage());
         }
     }
 

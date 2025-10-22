@@ -7,9 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientHandler implements Runnable{
-    private static ArrayList<ClientHandler> clientHandlers= new ArrayList<>();
+    private static CopyOnWriteArrayList<ClientHandler> clientHandlers= new CopyOnWriteArrayList<>();
     private Socket socket;
     private BufferedReader bufferedReader;
     private String clientName;
@@ -49,6 +50,11 @@ public class ClientHandler implements Runnable{
         try {
             while (socket.isConnected() ) {
                 messageFromClient = bufferedReader.readLine();
+                if(messageFromClient == null){
+                    // closeEverything(socket, bufferedWriter, bufferedReader);
+                    break;
+                }
+                broacastMessage(messageFromClient);
             }
         }catch (IOException e) {
             closeEverything(socket, bufferedWriter, bufferedReader);
@@ -58,9 +64,9 @@ public class ClientHandler implements Runnable{
     private void closeEverything(Socket socket, BufferedWriter bufferedWriter, BufferedReader bufferedReader) {
         removeClientHandler();
         try {
-            if (bufferedWriter == null) bufferedWriter.close();
-            if (bufferedReader == null) bufferedReader.close();
-            if (socket == null) socket.close();
+            if (bufferedWriter != null) bufferedWriter.close();
+            if (bufferedReader != null) bufferedReader.close();
+            if (socket != null) socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

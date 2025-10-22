@@ -8,7 +8,7 @@ import java.net.Socket;
 
 
 public class ServerSide {
-    final static int PORT_NUMBER= 100;
+    final static int PORT_NUMBER= 12345;
     private ServerSocket serverSocket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
