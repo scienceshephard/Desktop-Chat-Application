@@ -1,5 +1,6 @@
 package com.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.model.ChatMessage;
 import com.model.MessageType;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -29,7 +30,9 @@ public class WebSocketClient {
         transports.add(new WebSocketTransport(new StandardWebSocketClient()));
         SockJsClient sockJsClient = new SockJsClient(transports);
         stompClient = new WebSocketStompClient(sockJsClient);
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setObjectMapper(new ObjectMapper());
+        stompClient.setMessageConverter(converter);
 
         stompClient.connectAsync(url, new StompSessionHandlerAdapter() {
             @Override
@@ -43,12 +46,19 @@ public class WebSocketClient {
 
                     @Override
                     public void handleFrame(StompHeaders headers, Object payload) {
+                        System.out.println("New payload class: " + payload.getClass().getName());
+                        System.out.println("Payload content: " + payload);
+
                         ChatMessage chatMessage = (ChatMessage) payload;
+                        System.out.println("Received message: "
+                                + chatMessage.getContent() + " from " +
+                                chatMessage.getSender() + "and type"
+                                + chatMessage.getMessageType());
                         msgHandler.accept(chatMessage);
                     }
                 });
 
-                ChatMessage joinMessage = new ChatMessage(MessageType.JOIN, " :has joined the Chat", username);
+                ChatMessage joinMessage = new ChatMessage( username, " :has joined the Chat", MessageType.JOIN);
                 session.send("/app/chat.addUser", joinMessage);
 //                super.afterConnected(session, connectedHeaders);
             }
@@ -68,7 +78,7 @@ public class WebSocketClient {
     }
     public void sendMessage(String content){
         if(stompSession != null && stompSession.isConnected()){
-            ChatMessage msg = new ChatMessage(MessageType.CHAT, content, username);
+            ChatMessage msg = new ChatMessage(username, content, MessageType.CHAT);
             stompSession.send("/app/chat.sendMessage", msg);
         }
     }

@@ -26,15 +26,15 @@ public class ChatController {
 
     private void handleIncomingMessage(ChatMessage message) {
         Platform.runLater(() -> {
-            String displayMessage;
+            String displayMessage = "";
             try {
-                displayMessage = message.getType() != null ? switch (message.getType()) {
+                displayMessage =  switch (message.getMessageType()) {
                     case JOIN -> message.getSender() + " joined the chat";
                     case LEAVE -> message.getSender() + " left the chat";
                     case CHAT -> message.getSender() + ": " + message.getContent();
-                }: "JOIN" ;
+                } ;
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                System.err.println("Error processing message: " + e.getMessage());
             }
             messageList.getItems().add(displayMessage);
             messageList.scrollTo(messageList.getItems().size() - 1);
